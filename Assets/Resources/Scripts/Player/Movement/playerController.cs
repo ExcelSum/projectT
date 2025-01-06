@@ -54,10 +54,10 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void OnCollisionEnter(Collision collision)
+    private void OnTriggerEnter(Collider Collider)
     {
         // Check if the player landed back on the ground
-        if (collision.gameObject.CompareTag("Ground"))
+        if (Collider.gameObject.CompareTag("Ground"))
         {
             Debug.Log("Jumping is disabled");
             isJumping = false;
