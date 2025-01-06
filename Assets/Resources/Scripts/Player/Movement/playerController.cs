@@ -5,7 +5,7 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     public float forwardSpeed = 10f;  // Speed at which the player moves forward
-    public float laneDistance = 4f;   // Distance between lanes
+    public float laneDistance = 2f;   // Distance between lanes
     public float laneChangeSpeed = 10f; // Speed of lane change transition
     public float jumpForce = 5f;      // Jump force
 
