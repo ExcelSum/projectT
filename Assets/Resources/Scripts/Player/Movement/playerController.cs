@@ -13,28 +13,24 @@ public class PlayerController : MonoBehaviour
     private int currentLane = 1;      // 0 = left, 1 = middle, 2 = right
     private bool isJumping = false;
     private Vector3 targetPosition;   // Target position for smooth lane transition
+    private Vector2 startTouchPos;
+    
+    // For simulating swipe threshold and sensitivity
+    private const float swipeThreshold = 100f;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        // Initialize target position to start at the middle lane
-        targetPosition = transform.position;
+        targetPosition = transform.position;  // Start at middle lane
     }
 
     void Update()
     {
-        // Move the player forward continuously (without affecting the y-position)
+        // Move the player forward continuously
         transform.Translate(Vector3.forward * forwardSpeed * Time.deltaTime);
 
-        // Handle lane change input
-        if (Input.GetKeyDown(KeyCode.A) && currentLane > 0)
-        {
-            currentLane--;
-        }
-        else if (Input.GetKeyDown(KeyCode.D) && currentLane < 2)
-        {
-            currentLane++;
-        }
+        // Handle lane change input via swipe (simulated for mouse)
+        HandleSwipeInput();
 
         // Calculate the target position based on the current lane
         Vector3 desiredPosition = new Vector3(currentLane * laneDistance - laneDistance, transform.position.y, transform.position.z);
@@ -45,21 +41,50 @@ public class PlayerController : MonoBehaviour
         // Update the player's position
         transform.position = new Vector3(targetPosition.x, transform.position.y, transform.position.z);
 
-        // Handle jumping
-        if (Input.GetKeyDown(KeyCode.Space) && !isJumping)
+        // Handle jump input via tap (simulated for mouse click)
+        HandleJumpInput();
+    }
+
+    private void HandleSwipeInput()
+    {
+        // Simulate swipe with mouse drag (left or right)
+        if (Input.GetMouseButtonDown(0)) // Mouse button down (equivalent to touch start)
         {
-            Debug.Log("jumping is enabled");
+            startTouchPos = Input.mousePosition;
+        }
+
+        if (Input.GetMouseButton(0)) // While mouse button is held down (equivalent to touch moved)
+        {
+            float swipeDistance = Input.mousePosition.x - startTouchPos.x;
+
+            if (swipeDistance > swipeThreshold && currentLane < 2)  // Swipe right
+            {
+                currentLane++;
+                startTouchPos = Input.mousePosition;  // Reset start position after swipe
+            }
+            else if (swipeDistance < -swipeThreshold && currentLane > 0)  // Swipe left
+            {
+                currentLane--;
+                startTouchPos = Input.mousePosition;  // Reset start position after swipe
+            }
+        }
+    }
+
+    private void HandleJumpInput()
+    {
+        // Simulate tap with mouse click (equivalent to touch tap)
+        if (Input.GetMouseButtonDown(0) && !isJumping) // Mouse click (equivalent to tap)
+        {
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             isJumping = true;
         }
     }
 
-    private void OnTriggerEnter(Collider Collider)
+    private void OnTriggerEnter(Collider other)
     {
         // Check if the player landed back on the ground
-        if (Collider.gameObject.CompareTag("Ground"))
+        if (other.gameObject.CompareTag("Ground"))
         {
-            Debug.Log("Jumping is disabled");
             isJumping = false;
         }
     }
